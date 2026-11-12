@@ -191,12 +191,29 @@ internal class DragPinchManager(
         distanceY: Float,
     ): Boolean {
         scrolling = true
+    
         if (pdfView.isZooming || pdfView.isSwipeEnabled) {
-            pdfView.moveRelativeTo(-distanceX, -distanceY)
+            var moveX = -distanceX
+            var moveY = -distanceY
+    
+            if (!scaling && pdfView.zoom > 1f && e1 != null) {
+                val totalX = abs(e2.x - e1.x)
+                val totalY = abs(e2.y - e1.y)
+    
+                if (totalY > totalX * 1.5f) {
+                    moveX *= 0.2f
+                } else if (totalX > totalY * 1.5f) {
+                    moveY *= 0.2f
+                }
+            }
+    
+            pdfView.moveRelativeTo(moveX, moveY)
         }
+    
         if (!scaling || pdfView.doRenderDuringScale()) {
             pdfView.loadPageByOffset()
         }
+    
         return true
     }
 
